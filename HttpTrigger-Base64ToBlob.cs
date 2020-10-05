@@ -29,6 +29,8 @@ namespace Microsoft.jeschro
         {
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             
+            log.LogInformation(requestBody);
+
             string destinationStorageAccount = Environment.GetEnvironmentVariable("destinationStorageAccount");
             string destinationStorageKey = Environment.GetEnvironmentVariable("destinationStorageKey");
             destinationContainer = Environment.GetEnvironmentVariable("destinationContainer");
@@ -38,19 +40,21 @@ namespace Microsoft.jeschro
             List<Asset> assetCollection = JsonConvert.DeserializeObject<Inspection>(requestBody).Assets;
             
             string assetCollectionName = assetCollection.Find(x => x.blob == null).identifier;
+
+            //pass through assets and upload depending on type
             foreach(Asset asset in assetCollection) {
                 switch (asset.description) {
                     case "audio input":
-                        uploadBlob(assetCollectionName, asset, "audio", "data:audio/aac;base64,", "m4a");
+                        uploadBlob(assetCollectionName, asset, "audio", "data:audio/webm;base64,", "m4a");
                         break;
                     case "pen input":
                         uploadBlob(assetCollectionName, asset, "pen", "data:image/png;base64,", "png");
                         break;
                     case "photo input":
-                        uploadBlob(assetCollectionName, asset, "photo", "data:image/jpeg;base64,", "jpg");
+                        uploadBlob(assetCollectionName, asset, "photo", "data:image/png;base64,", "jpg");
                         break;
                     case "measurement photo input":
-                        uploadBlob(assetCollectionName, asset, "measurement photo", "data:image/jpeg;base64,", "jpg");
+                        uploadBlob(assetCollectionName, asset, "measurement photo", "data:image/png;base64,", "jpg");
                         break;
                     case "measurement input":
                         uploadText(assetCollectionName, asset, "measurement");
@@ -79,7 +83,7 @@ namespace Microsoft.jeschro
             cloudBlobClientDestination = storageAccountDestination.CreateCloudBlobClient();
             cloudBlobContainer = cloudBlobClientDestination.GetContainerReference(destinationContainer);
             assetBlob = cloudBlobContainer.GetBlockBlobReference(assetCollectionName + "/" + asset.identifier + "_" + type + "_input." + extension);
-            imageBytes = Convert.FromBase64String(asset.blob.Replace(mimetype, "").Replace("\"", ""));
+            imageBytes = Convert.FromBase64String(asset.blobContent.Replace(mimetype, "").Replace("\"", ""));
             using(var stream = new MemoryStream(imageBytes, writable: false)) {
                 stream.Position = 0;
                 await assetBlob.UploadFromStreamAsync(stream);
@@ -106,10 +110,11 @@ namespace Microsoft.jeschro
     }
 
     public class Asset {
-        public float altitude {get;set;}
+        public float? altitude {get;set;}
         public float latitude {get;set;}
         public float longitude {get;set;}
         public string blob {get;set;}
+        public string blobContent {get;set;}
         public string createdBy {get;set;}
         public string createdByName {get;set;}
         public DateTime createdOn {get;set;}
