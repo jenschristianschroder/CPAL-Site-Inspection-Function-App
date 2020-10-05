@@ -29,6 +29,8 @@ namespace Microsoft.jeschro
         {
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             
+            log.LogInformation(requestBody);
+
             string destinationStorageAccount = Environment.GetEnvironmentVariable("destinationStorageAccount");
             string destinationStorageKey = Environment.GetEnvironmentVariable("destinationStorageKey");
             destinationContainer = Environment.GetEnvironmentVariable("destinationContainer");
@@ -37,6 +39,7 @@ namespace Microsoft.jeschro
 
             string inspection = JsonConvert.DeserializeObject<Inspection>(requestBody).Assets;
             List<Asset> assetCollection = JsonConvert.DeserializeObject<List<Asset>>(inspection);
+
             string assetCollectionName = assetCollection.Find(x => x.blob == null).identifier;
 
             //pass through assets and upload depending on type
@@ -105,6 +108,7 @@ namespace Microsoft.jeschro
 
     public class Inspection {
         public string Assets  {get;set;}
+
     }
 
     public class Asset {
