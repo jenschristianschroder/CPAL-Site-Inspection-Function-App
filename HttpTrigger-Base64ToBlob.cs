@@ -29,13 +29,15 @@ namespace Microsoft.jeschro
         {
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             
+            log.LogInformation(requestBody);
+
             string destinationStorageAccount = Environment.GetEnvironmentVariable("destinationStorageAccount");
             string destinationStorageKey = Environment.GetEnvironmentVariable("destinationStorageKey");
             destinationContainer = Environment.GetEnvironmentVariable("destinationContainer");
 
             storageAccountDestination = CloudStorageAccount.Parse("DefaultEndpointsProtocol=https;AccountName=" + destinationStorageAccount + ";AccountKey=" + destinationStorageKey + ";EndpointSuffix=core.windows.net");
 
-            List<Asset> assetCollection = JsonConvert.DeserializeObject<List<Asset>>(requestBody);
+            List<Asset> assetCollection = JsonConvert.DeserializeObject<Payload>(requestBody).Assets;
             string assetCollectionName = assetCollection.Find(x => x.blob == null).identifier;
             foreach(Asset asset in assetCollection) {
                 switch (asset.description) {
@@ -100,6 +102,9 @@ namespace Microsoft.jeschro
         }
     }
 
+    public class Payload {
+        public List<Asset> Assets {get; set;}
+    }
 
     public class Asset {
         public float altitude {get;set;}
