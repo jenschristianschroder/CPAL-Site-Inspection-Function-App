@@ -35,7 +35,8 @@ namespace Microsoft.jeschro
 
             storageAccountDestination = CloudStorageAccount.Parse("DefaultEndpointsProtocol=https;AccountName=" + destinationStorageAccount + ";AccountKey=" + destinationStorageKey + ";EndpointSuffix=core.windows.net");
 
-            List<Asset> assetCollection = JsonConvert.DeserializeObject<List<Asset>>(requestBody);
+            List<Asset> assetCollection = JsonConvert.DeserializeObject<Inspection>(requestBody).Assets;
+            
             string assetCollectionName = assetCollection.Find(x => x.blob == null).identifier;
             foreach(Asset asset in assetCollection) {
                 switch (asset.description) {
@@ -100,6 +101,9 @@ namespace Microsoft.jeschro
         }
     }
 
+    public class Inspection {
+        public List<Asset> Assets {get;set;}
+    }
 
     public class Asset {
         public float altitude {get;set;}
