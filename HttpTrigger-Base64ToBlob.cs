@@ -37,6 +37,8 @@ namespace Microsoft.jeschro
 
             List<Asset> assetCollection = JsonConvert.DeserializeObject<List<Asset>>(requestBody);
             string assetCollectionName = assetCollection.Find(x => x.blob == null).identifier;
+
+            //pass through assets and upload depending on type
             foreach(Asset asset in assetCollection) {
                 switch (asset.description) {
                     case "audio input":
