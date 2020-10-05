@@ -35,7 +35,8 @@ namespace Microsoft.jeschro
 
             storageAccountDestination = CloudStorageAccount.Parse("DefaultEndpointsProtocol=https;AccountName=" + destinationStorageAccount + ";AccountKey=" + destinationStorageKey + ";EndpointSuffix=core.windows.net");
 
-            List<Asset> assetCollection = JsonConvert.DeserializeObject<List<Asset>>(requestBody);
+            string inspection = JsonConvert.DeserializeObject<Inspection>(requestBody).Assets;
+            List<Asset> assetCollection = JsonConvert.DeserializeObject<List<Asset>>(inspection);
             string assetCollectionName = assetCollection.Find(x => x.blob == null).identifier;
 
             //pass through assets and upload depending on type
@@ -80,7 +81,7 @@ namespace Microsoft.jeschro
             cloudBlobClientDestination = storageAccountDestination.CreateCloudBlobClient();
             cloudBlobContainer = cloudBlobClientDestination.GetContainerReference(destinationContainer);
             assetBlob = cloudBlobContainer.GetBlockBlobReference(assetCollectionName + "/" + asset.identifier + "_" + type + "_input." + extension);
-            imageBytes = Convert.FromBase64String(asset.blob.Replace(mimetype, "").Replace("\"", ""));
+            imageBytes = Convert.FromBase64String(asset.blobContent.Replace(mimetype, "").Replace("\"", ""));
             using(var stream = new MemoryStream(imageBytes, writable: false)) {
                 stream.Position = 0;
                 await assetBlob.UploadFromStreamAsync(stream);
@@ -102,12 +103,16 @@ namespace Microsoft.jeschro
         }
     }
 
+    public class Inspection {
+        public string Assets  {get;set;}
+    }
 
     public class Asset {
-        public float altitude {get;set;}
+        public float? altitude {get;set;}
         public float latitude {get;set;}
         public float longitude {get;set;}
         public string blob {get;set;}
+        public string blobContent {get;set;}
         public string createdBy {get;set;}
         public string createdByName {get;set;}
         public DateTime createdOn {get;set;}
