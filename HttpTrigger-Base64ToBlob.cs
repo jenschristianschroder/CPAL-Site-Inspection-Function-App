@@ -43,16 +43,16 @@ namespace Microsoft.jeschro
             foreach(Asset asset in assetCollection) {
                 switch (asset.description) {
                     case "audio input":
-                        uploadBlob(assetCollectionName, asset, "audio", "data:audio/aac;base64,", "m4a");
+                        uploadBlob(assetCollectionName, asset, "audio", "data:audio/webm;base64,", "m4a");
                         break;
                     case "pen input":
                         uploadBlob(assetCollectionName, asset, "pen", "data:image/png;base64,", "png");
                         break;
                     case "photo input":
-                        uploadBlob(assetCollectionName, asset, "photo", "data:image/jpeg;base64,", "jpg");
+                        uploadBlob(assetCollectionName, asset, "photo", "data:image/png;base64,", "jpg");
                         break;
                     case "measurement photo input":
-                        uploadBlob(assetCollectionName, asset, "measurement photo", "data:image/jpeg;base64,", "jpg");
+                        uploadBlob(assetCollectionName, asset, "measurement photo", "data:image/png;base64,", "jpg");
                         break;
                     case "measurement input":
                         uploadText(assetCollectionName, asset, "measurement");
