@@ -37,8 +37,12 @@ namespace Microsoft.jeschro
 
             storageAccountDestination = CloudStorageAccount.Parse("DefaultEndpointsProtocol=https;AccountName=" + destinationStorageAccount + ";AccountKey=" + destinationStorageKey + ";EndpointSuffix=core.windows.net");
 
-            List<Asset> assetCollection = JsonConvert.DeserializeObject<Payload>(requestBody).Assets;
+            string inspection = JsonConvert.DeserializeObject<Inspection>(requestBody).Assets;
+            List<Asset> assetCollection = JsonConvert.DeserializeObject<List<Asset>>(inspection);
+
             string assetCollectionName = assetCollection.Find(x => x.blob == null).identifier;
+
+            //pass through assets and upload depending on type
             foreach(Asset asset in assetCollection) {
                 switch (asset.description) {
                     case "audio input":
@@ -102,12 +106,13 @@ namespace Microsoft.jeschro
         }
     }
 
-    public class Payload {
-        public List<Asset> Assets {get; set;}
+    public class Inspection {
+        public string Assets  {get;set;}
+
     }
 
     public class Asset {
-        public float altitude {get;set;}
+        public float? altitude {get;set;}
         public float latitude {get;set;}
         public float longitude {get;set;}
         public string blob {get;set;}
